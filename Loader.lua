@@ -1,7 +1,7 @@
 -- Loader.lua - Universal Zaporium Hub Loader
 -- Paste this on GitHub, this is your main loadstring
 
-local ZaporiumKeySystem = loadstring(game:HttpGet("https://raw.githubusercontent.com/cheyt2025-cyber/Keys/main/ZaporiumKeySystem.lua"))()
+local ZaporiumKeySystem = loadstring(game:HttpGet("https://raw.githubusercontent.com/cheyt2025-cyber/Key-system-/refs/heads/main/KeyTesting.lua"))()
 
 -- Your valid keys (add this!)
 local VALID_KEYS = {"Sub2ScriptZap", "ScriptZapVIP", "KickABrainrot", "FreeKey2025"}
