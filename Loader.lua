@@ -1,35 +1,44 @@
--- Loader.lua - Universal Zaporium Hub Loader
--- Paste this on GitHub, this is your main loadstring
+-- Loader.lua - Universal Zaporium Hub Loader (Dynamic Keys Edition)
 
-local ZaporiumKeySystem = loadstring(game:HttpGet("https://raw.githubusercontent.com/cheyt2025-cyber/Key-system-/refs/heads/main/KeyTesting.lua"))()
+local ZaporiumKeySystem = loadstring(game:HttpGet("https://raw.githubusercontent.com/cheyt2025-cyber/Keys/main/ZaporiumKeySystem.lua"))()
 
--- Your valid keys (add this!)
-local VALID_KEYS = {"Sub2ScriptZap", "ScriptZapVIP", "KickABrainrot", "FreeKey2025"}
-
--- Game Detection + Scripts
-local Games = {
-    -- [PlaceId] = "raw github link to your script"
-    [2788229376]  = "https://raw.githubusercontent.com/YourUsername/Arsenal/main.lua",     -- Arsenal
-    [1962086868]  = "https://raw.githubusercontent.com/YourUsername/TowerOfHell/main.lua", -- Tower of Hell
-    [286090429]   = "https://raw.githubusercontent.com/YourUsername/Arsenal/main.lua",     -- Arsenal (old ID)
-    [12690025832] = "https://raw.githubusercontent.com/YourUsername/BladeBall/main.lua",    -- Blade Ball
-    [13772394625] = "https://raw.githubusercontent.com/YourUsername/BladeBall/main.lua",    -- Blade Ball Alt
-    [6403373529]  = "https://raw.githubusercontent.com/YourUsername/SlapBattles/main.lua",  -- Slap Battles
-    [168556275]   = "https://raw.githubusercontent.com/cheyt2025-cyber/Boss/refs/heads/main/Console",   -- Baseplate
+-- Dynamic Key Fetch (gets ONE random key from your GitHub JSON)
+local function getDynamicKey()
+    local success, response = pcall(game.HttpGet, game, "https://raw.githubusercontent.com/cheyt2025-cyber/Keys/main/keys.json")
+    if not success then
+        warn("Failed to fetch keys — using fallback")
+        return {"FallbackKey-TEST"}  -- Emergency backup if GitHub down
+    end
     
-    -- Add 100+ more games like this ↓
-    -- [GamePlaceId] = "https://yourscriptlink.com/script.lua",
+    local ok, data = pcall(HttpService.JSONDecode, game:GetService("HttpService"), response)
+    if ok and data and data.keys and #data.keys > 0 then
+        -- Pick a random key (or you can make it sequential/user-specific later)
+        local randomIndex = math.random(1, #data.keys)
+        local singleKey = {data.keys[randomIndex]}  -- Return as array with ONE key
+        print("Fetched dynamic key: " .. data.keys[randomIndex])  -- For your logs
+        return singleKey
+    else
+        warn("Invalid keys data — using fallback")
+        return {"FallbackKey-TEST"}
+    end
+end
+
+local VALID_KEYS = getDynamicKey()  -- Now it's dynamic!
+
+-- Rest of your code stays EXACTLY the same...
+local Games = {
+    -- Your games table here (unchanged)
 }
 
 local PlaceId = game.PlaceId
 local ScriptLink = Games[PlaceId]
 
--- Show key system
+-- Show key system (passes the single dynamic key)
 ZaporiumKeySystem.new({
-    Keys = VALID_KEYS,
+    Keys = VALID_KEYS,  -- Now just 1 key!
     Duration = 24,
     Title = "ZAPORIUM HUB",
-    ShowCopyButton = true,
+    ShowCopyButton = false,  -- Hide copy button since key is dynamic/personal
     OnSuccess = function()
         if ScriptLink then
             print("Game detected! Loading script...")
