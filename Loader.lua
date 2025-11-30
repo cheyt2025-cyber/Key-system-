@@ -1,53 +1,52 @@
--- Loader.lua - Universal Zaporium Hub Loader (Dynamic Keys Edition)
+-- Loader.lua - Zaporium Hub (LootLabs + Unlimited Keys Edition)
+local ZaporiumKeySystem = loadstring(game:HttpGet("https://raw.githubusercontent.com/cheyt2025-cyber/Keys/main/ZaporiumKeySystem.lua"))()
 
-local ZaporiumKeySystem = loadstring(game:HttpGet("https://raw.githubusercontent.com/cheyt2025-cyber/Key-system-/refs/heads/main/KeyTesting.lua"))()
-
--- Dynamic Key Fetch (gets ONE random key from your GitHub JSON)
-local function getDynamicKey()
-    local success, response = pcall(game.HttpGet, game, "https://raw.githubusercontent.com/cheyt2025-cyber/Keys/main/keys.json")
-    if not success then
-        warn("Failed to fetch keys — using fallback")
-        return {"FallbackKey-TEST"}  -- Emergency backup if GitHub down
-    end
+-- Fetch ALL keys from allkeys.txt (accepts ANY key from the file)
+local function getAllValidKeys()
+    local success, content = pcall(function()
+        return game:HttpGet("https://raw.githubusercontent.com/cheyt2025-cyber/Keys/main/allkeys.txt")
+    end)
     
-    local ok, data = pcall(HttpService.JSONDecode, game:GetService("HttpService"), response)
-    if ok and data and data.keys and #data.keys > 0 then
-        -- Pick a random key (or you can make it sequential/user-specific later)
-        local randomIndex = math.random(1, #data.keys)
-        local singleKey = {data.keys[randomIndex]}  -- Return as array with ONE key
-        print("Fetched dynamic key: " .. data.keys[randomIndex])  -- For your logs
-        return singleKey
+    if success and content and content ~= "" then
+        local keys = {}
+        for line in content:gmatch("[^\r\n]+") do
+            local key = line:gsub("^%s*(.-)%s*$", "")  -- trim
+            if key ~= "" then
+                table.insert(keys, key)
+            end
+        end
+        print("Loaded " .. #keys .. " keys from allkeys.txt")
+        return keys
     else
-        warn("Invalid keys data — using fallback")
-        return {"FallbackKey-TEST"}
+        warn("Failed to load keys → using emergency key")
+        return {"ZAP-USER-0001"}  -- emergency fallback
     end
 end
 
-local VALID_KEYS = getDynamicKey()  -- Now it's dynamic!
+local VALID_KEYS = getAllValidKeys()
 
--- Rest of your code stays EXACTLY the same...
+-- Your games (add real scripts later)
 local Games = {
-    -- Your games table here (unchanged)
+    [2788229376] = "https://raw.githubusercontent.com/cheyt2025-cyber/Keys/main/scripts/Arsenal.lua",
+    [6403373529] = "https://raw.githubusercontent.com/cheyt2025-cyber/Keys/main/scripts/SlapBattles.lua",
+    -- add more when ready
 }
 
 local PlaceId = game.PlaceId
 local ScriptLink = Games[PlaceId]
 
--- Show key system (passes the single dynamic key)
 ZaporiumKeySystem.new({
-    Keys = VALID_KEYS,  -- Now just 1 key!
+    Keys = VALID_KEYS,        -- now 100–10000+ keys
     Duration = 24,
     Title = "ZAPORIUM HUB",
-    ShowCopyButton = false,  -- Hide copy button since key is dynamic/personal
+    ShowCopyButton = false,   -- hide copy button (keys are from LootLabs)
     OnSuccess = function()
         if ScriptLink then
-            print("Game detected! Loading script...")
             loadstring(game:HttpGet(ScriptLink))()
         else
-            warn("This game is not supported yet!")
             game.StarterGui:SetCore("SendNotification", {
                 Title = "Zaporium Hub";
-                Text = "Game not supported yet! Join our Discord for updates.";
+                Text = "Game not supported yet!";
                 Duration = 8;
             })
         end
